@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Metamask Connection</title>
+	
+</head>
+<body>
+
+
+	<h1>Testing Connect Wallet Button</h1>
+	<button class="ethBtn">Connect Now</button>
+	<div class="accountDt"></div>
+	<br><br><hr>
+
+		<br><br><hr>
+	
+
+	<h1>Sign Your Message</h1>
+	<input type="text" name="msg">
+	<button class="signN">Sign Now</button>
+	<div class="signature"></div>
+	<br><br><hr>
+
+	<h1>ERC20 DATA</h1>
+	<div>
+		<h3>Token Name: </h3><p id="tknName"></p>
+		<h3>Token Symbol: </h3><p class="tknSymbol"></p>
+		<h3>Token totalSupply: </h3><p class="tknSupply"></p>
+	</div>
+
+	<br><br><hr>
+	<input type="text" name="recepient">
+	<input type="number" name="value">
+	<button class="ethSend">Send Now</button>
+
+	<script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+
+	<script type="text/javascript">
+			
+		ethereumButton = document.querySelector(".ethBtn")
+		divAccount = document.querySelector(".accountDt")
+		sendBtn = document.querySelector(".ethSend")
+		var abi = [
+			{
+			"constant": true,
+			"inputs": [],
+			"name": "name",
+			"outputs": [
+			{
+			"name": "",
+			"type": "string"
+			}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+			},
+			{
+			"constant": false,
+			"inputs": [
+			{
+			"name": "_spender",
+			"type": "address"
+			},
+			{
+			"name": "_value",
+			"type": "uint256"
+			}
+			],
+			"name": "approve",
+			"outputs": [
+			{
+			"name": "",
+			"type": "bool"
+			}
+			],
+			"payable": false,
+			"stateMutability": "nonpayable",
+			"type": "function"
+			},
+			{
+			"constant": true,
+			"inputs": [],
+			"name": "totalSupply",
+			"outputs": [
+			{
+			"name": "",
+			"type": "uint256"
+			}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+			},
+			{
+			"constant": false,
+			"inputs": [
+			{
+			"name": "_from",
+			"type": "address"
+			},
+			{
+			"name": "_to",
+			"type": "address"
+			},
+			{
+			"name": "_value",
+			"type": "uint256"
+			}
+			],
+			"name": "transferFrom",
+			"outputs": [
+			{
+			"name": "",
+			"type": "bool"
+			}
+			],
+			"payable": false,
+			"stateMutability": "nonpayable",
+			"type": "function"
+			},
+			{
+			"constant": true,
+			"inputs": [],
+			"name": "decimals",
+			"outputs": [
+			{
+			"name": "",
+			"type": "uint8"
+			}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+			},
+			{
+			"constant": true,
+			"inputs": [
+			{
+			"name": "_owner",
+			"type": "address"
+			}
+			],
+			"name": "balanceOf",
+			"outputs": [
+			{
+			"name": "balance",
+			"type": "uint256"
+			}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+			},
+			{
+			"constant": true,
+			"inputs": [],
+			"name": "symbol",
+			"outputs": [
+			{
+			"name": "",
+			"type": "string"
+			}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+			},
+			{
+			"constant": false,
+			"inputs": [
+			{
+			"name": "_to",
+			"type": "address"
+			},
+			{
+			"name": "_value",
+			"type": "uint256"
+			}
+			],
+			"name": "transfer",
+			"outputs": [
+			{
+			"name": "",
+			"type": "bool"
+			}
+			],
+			"payable": false,
+			"stateMutability": "nonpayable",
+			"type": "function"
+			},
+			{
+			"constant": true,
+			"inputs": [
+			{
+			"name": "_owner",
+			"type": "address"
+			},
+			{
+			"name": "_spender",
+			"type": "address"
+			}
+			],
+			"name": "allowance",
+			"outputs": [
+			{
+			"name": "",
+			"type": "uint256"
+			}
+			],
+			"payable": false,
+			"stateMutability": "view",
+			"type": "function"
+			},
+			{
+			"payable": true,
+			"stateMutability": "payable",
+			"type": "fallback"
+			},
+			{
+			"anonymous": false,
+			"inputs": [
+			{
+			"indexed": true,
+			"name": "owner",
+			"type": "address"
+			},
+			{
+			"indexed": true,
+			"name": "spender",
+			"type": "address"
+			},
+			{
+			"indexed": false,
+			"name": "value",
+			"type": "uint256"
+			}
+			],
+			"name": "Approval",
+			"type": "event"
+			},
+			{
+			"anonymous": false,
+			"inputs": [
+			{
+			"indexed": true,
+			"name": "from",
+			"type": "address"
+			},
+			{
+			"indexed": true,
+			"name": "to",
+			"type": "address"
+			},
+			{
+			"indexed": false,
+			"name": "value",
+			"type": "uint256"
+			}
+			],
+			"name": "Transfer",
+			"type": "event"
+			}
+		];
+		var addressERC = "0x6880d0E64529803431FE878e5Dbc96De1c2400F4";
+		var connection = false;
+
+		var web30;
+
+		async function getContractData(web3js) {
+			const web3 = new Web3(web3js)
+			console.log(web3)
+			var erc20 = new web3.eth.Contract(abi, addressERC)
+			var nm = await erc20.methods.name().call()
+			document.querySelector("#tknName").innerText = nm
+			console.log(nm)
+
+			var sym = await erc20.methods.symbol().call()
+			document.querySelector(".tknSymbol").innerText = sym
+			console.log(sym)
+
+			var supply = await erc20.methods.totalSupply().call();
+			document.querySelector(".tknSupply").innerText = supply
+			console.log(supply)
+		}
+
+		if(window.ethereum){
+			console.log("SUccess")
+			getContractData(window.ethereum);
+			web30 = new Web3(window.ethereum);
+
+
+			ethereumButton.addEventListener("click",async ()=>{
+				const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+				if(accounts.length > 0){
+					console.log(parseInt(ethereum.chainId))
+					if(parseInt(ethereum.chainId) == 97){
+						connection = true
+						ethereumButton.innerText = 'Connected'
+						divAccount.innerHTML = '<p> Address: '+ accounts[0] + '  </p>'	
+					}else{
+						alert('Please Switch Network to BSC Testnet')
+					}
+					
+				}
+			})
+
+			ethereum.on('accountsChanged', async function (accounts) {
+			  if(connection){
+			  	//const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+			  	divAccount.innerHTML = '<p> Address: '+ accounts[0] + '  </p>'
+			  	
+			  }
+			});
+
+			sendBtn.addEventListener('click',async () => {
+				if(connection){
+					console.log('sending......')
+					var rec = document.querySelector('[name="recepient"]').value
+					var val = document.querySelector('[name="value"]').value
+					const transactionParameters = {
+					  to: rec, 
+					  from: ethereum.selectedAddress,
+					  value: val,
+					  chainId: '97'
+					};
+					// const txHash = await ethereum.request({
+					//   method: 'eth_sendTransaction',
+					//   params: [transactionParameters],
+					// });
+					const txHash = await erc20.method.transfer(rec,10000000000)
+					console.log(txHash)
+					console.log(transactionParameters)
+					console.log(rec)
+					console.log(val)
+				}else{
+
+					alert('Please Connect First')
+				}
+			})
+
+
+		}else{
+			alert("Install Metamask")
+			const web30 = new Web3("https://speedy-nodes-nyc.moralis.io/12df964d866c784c7027641d/bsc/testnet");
+			
+
+			getContractData("https://speedy-nodes-nyc.moralis.io/12df964d866c784c7027641d/bsc/testnet");
+		}
+
+
+		document.querySelector(".signN").addEventListener("click",async () =>{
+				if(connection){
+					var msg = web30.utils.sha3(document.querySelector('[name="msg"]').value)
+					console.log(msg)
+					var signatureData =  web30.eth.sign(msg, ethereum.selectedAddress).then((signData)=>{
+						document.querySelector(".signature").innerHTML = '<p> HASH: '+ signData + '</p>'
+					})
+
+					
+				}else{
+					alert("PLEASE CONNET FIRST")
+				}
+		})
+
+
+
+
+
+
+
+	</script>
+	
+</body>
+</html>
